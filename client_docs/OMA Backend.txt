@@ -1,0 +1,324 @@
+ORGANIZATIONAL MATURITY ASSESSMENT (OMA) – BACKEND ARCHITECTURE MAP 
+
+Note 
+This is a high-level backend system map. 
+OMA is a diagnostic intelligence engine feeding HR Strategy, not a standalone report. 
+Final scope, timelines, and cost depend on phase prioritization. 
+
+1. CORE SERVICES 
+
+A. API Gateway 
+
+• Request routing 
+• Authentication & Authorization 
+• Rate limiting 
+• Request logging 
+• CORS handling 
+• Payload validation 
+• Survey anonymity enforcement middleware 
+• Benchmark data access control 
+
+B. Authentication Service 
+
+• User login / logout 
+• JWT token generation 
+• Role-based access control (HR, Executive, Manager, Employee, Auditor) 
+• Session management 
+• Survey participation tokens 
+• Read vs Analyze permission enforcement 
+
+2. BUSINESS LOGIC SERVICES 
+
+A. Survey Design & Launch Service 
+
+Endpoints 
+POST /api/oma/surveys 
+POST /api/oma/surveys/{id}/launch 
+
+ 
+ 
+ 
+ 
+GET /api/oma/surveys/{id} 
+GET /api/oma/surveys/{id}/status 
+
+Business Logic 
+• Separate surveys per respondent group (HR / Managers / Employees) 
+• Surveys mapped to predefined maturity domains 
+• Anonymous participation support 
+• Configurable launch window 
+• Survey lifecycle tracking 
+• Audit logging of survey launch 
+
+B. Survey Response Collection Service 
+
+Endpoints 
+POST /api/oma/responses 
+GET /api/oma/responses/{surveyId} 
+
+Business Logic 
+• Secure response ingestion 
+• Responses stored by respondent group 
+• Partial completion supported 
+• Submission timestamps captured 
+• Responses anonymized by default 
+• Encryption at rest & in transit 
+
+C. Data Normalization Service 
+
+Endpoints 
+POST /api/oma/normalize/{surveyId} 
+GET /api/oma/normalized/{surveyId} 
+
+Business Logic 
+• Normalize scale-based answers to standard range 
+• Prepare free-text responses for AI processing 
+• Detect & flag outliers 
+• Normalized dataset versioned 
+• Raw data preserved for audit 
+
+ 
+ 
+ 
+D. Domain Scoring Engine 
+
+Endpoints 
+POST /api/oma/score/domains 
+GET /api/oma/scores/domains 
+
+Business Logic 
+• Domain-level maturity scoring (1–5) 
+• Weighted scoring rules 
+• Domain weights configurable per organization 
+• Timestamped score storage 
+• Historical comparison enabled 
+
+E. Consistency & Validation Rules Engine 
+
+Endpoints 
+POST /api/oma/validate 
+GET /api/oma/validation/results 
+
+Business Logic 
+• Detect contradictions between respondent groups 
+• Identify abnormal variance patterns 
+• Apply predefined validation rules 
+• Store validation results alongside scores 
+• Flag governance & culture risks 
+
+F. Overall Maturity Level Service 
+
+Endpoints 
+POST /api/oma/maturity/calculate 
+GET /api/oma/maturity 
+
+Business Logic 
+• Aggregate domain scores 
+• Assign maturity level: 
+
+•  Level 1 – Initial 
+
+•  Level 2 – Emerging 
+
+•  Level 3 – Defined 
+
+ 
+ 
+•  Level 4 – Managed 
+
+•  Level 5 – Optimized 
+
+• Calculation logic configurable 
+• Final maturity level lock after confirmation 
+
+G. Gap & Risk Identification Service 
+
+Endpoints 
+GET /api/oma/gaps 
+GET /api/oma/risks 
+
+Business Logic 
+• Identify gaps per domain 
+• Assign risk severity (Low / Medium / High) 
+• Generate gap explanations 
+• Link gaps to maturity drivers 
+• Store actionable diagnostic insights 
+
+H. Improvement Roadmap Generator 
+
+Endpoints 
+POST /api/oma/roadmap/generate 
+PUT /api/oma/roadmap/{id} 
+GET /api/oma/roadmap 
+
+Business Logic 
+• Generate improvement actions per gap 
+• Prioritize by impact vs effort 
+• Roadmap structured quarterly (6–12 months) 
+• Editable by HR 
+• Roadmap version-controlled 
+
+I. Benchmarking Engine (Industry / Size / Region) 
+
+Endpoints 
+POST /api/oma/benchmark/classify 
+
+ 
+ 
+ 
+POST /api/oma/benchmark/apply 
+GET /api/oma/benchmark/report 
+
+Business Logic 
+• Company classification: 
+
+• 
+
+Industry 
+
+•  Size 
+
+•  Region 
+
+• Apply benchmark datasets 
+• Domain-level comparison 
+• Variance calculation (Above / At / Below) 
+• Benchmark dataset version tracking 
+• Enforce benchmark anonymization 
+
+J. Strategy Integration Service 
+
+Endpoints 
+POST /api/oma/publish/strategy 
+GET /api/oma/strategy/ack 
+
+Business Logic 
+• Send maturity results to HR Strategy Engine: 
+
+•  Overall maturity level 
+
+•  Domain scores 
+
+•  Gaps & risks 
+
+• Transmission acknowledgment 
+• Integration event logging 
+
+3. INTEGRATION SERVICES 
+
+A. AI Processing Service 
+
+• Free-text response analysis 
+• Gap explanation generation 
+• Roadmap action synthesis 
+
+ 
+ 
+B. HR Strategy Engine Integration 
+
+• Readiness input 
+• Gap-driven strategy alignment 
+• Feedback loop validation 
+
+C. Notification Service 
+
+• Survey invitations 
+• Survey reminders 
+• Results readiness notifications 
+
+D. Reporting & Export Service 
+
+• Benchmark-enhanced maturity reports 
+• Domain heatmaps 
+• PDF / PPT export 
+
+4. DATABASE (SUMMARY) 
+
+• OMA_Surveys 
+• OMA_Survey_Questions 
+• OMA_Survey_Responses 
+• OMA_Normalized_Data 
+• OMA_Domain_Scores 
+• OMA_Validation_Results 
+• OMA_Maturity_Levels 
+• OMA_Gaps 
+• OMA_Risks 
+• OMA_Roadmaps 
+• OMA_Benchmarks 
+• OMA_Benchmark_Datasets 
+• OMA_Strategy_Exports 
+• Audit_Logs 
+
+ 
+ 
+ 
+ 
+ 
+DATABASE ARCHITECTURE 
+
+A. OMA_Surveys 
+
+• id (PK) 
+• respondent_group (HR / Manager / Employee) 
+• launch_start 
+• launch_end 
+• status 
+• created_at 
+
+B. OMA_Survey_Responses 
+
+• id (PK) 
+• survey_id (FK) 
+• response_payload (JSON) 
+• submitted_at 
+
+C. OMA_Domain_Scores 
+
+• id (PK) 
+• domain_name 
+• score 
+• calculated_at 
+
+D. OMA_Maturity_Levels 
+
+• id (PK) 
+• overall_level 
+• confirmed_at 
+
+E. OMA_Gaps 
+
+• id (PK) 
+• domain_name 
+• gap_description 
+• severity 
+
+ 
+ 
+ 
+ 
+F. OMA_Roadmaps 
+
+• id (PK) 
+• quarter 
+• actions (JSON) 
+• version 
+
+G. OMA_Benchmarks 
+
+• id (PK) 
+• benchmark_type (Industry / Size / Region) 
+• variance_data (JSON) 
+• dataset_version 
+
+USER STORY COVERAGE 
+
+     EPIC 1 – Organizational Maturity Assessment 
+     EPIC 2 – Benchmarking Integration 
+     Diagnostic → Actionable Roadmap 
+     Strategy Feedback Loop 
+
+ 
+ 
+ 
+ 
+

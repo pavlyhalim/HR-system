@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block head %}
+    <title>{{ title|default:"HR System API" }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if favicon_href %}<link rel="icon" href="{{ favicon_href }}">{% endif %}
+    <link rel="stylesheet" href="{{ swagger_ui_css }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --hr-bg-primary: #0f1117;
+        --hr-bg-secondary: #161922;
+        --hr-bg-card: #1a1d2e;
+        --hr-bg-input: #1e2235;
+        --hr-border: #2a2e3f;
+        --hr-border-light: #353a50;
+        --hr-accent: #6c63ff;
+        --hr-accent-hover: #7b73ff;
+        --hr-accent-glow: rgba(108, 99, 255, 0.15);
+        --hr-text-primary: #e8e9ed;
+        --hr-text-secondary: #9ca3b4;
+        --hr-text-muted: #6b7280;
+        --hr-success: #10b981;
+        --hr-warning: #f59e0b;
+        --hr-danger: #ef4444;
+        --hr-info: #3b82f6;
+        --hr-get: #10b981;
+        --hr-post: #3b82f6;
+        --hr-put: #f59e0b;
+        --hr-patch: #8b5cf6;
+        --hr-delete: #ef4444;
+        --hr-radius: 10px;
+        --hr-radius-sm: 6px;
+        --hr-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+        --hr-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.15);
+        --hr-transition: all 0.2s ease;
+      }
+
+      html { box-sizing: border-box; overflow-y: scroll; }
+      *, *:after, *:before { box-sizing: inherit; }
+
+      body {
+        background: var(--hr-bg-primary);
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        color: var(--hr-text-primary);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ── CUSTOM HEADER ── */
+      .hr-api-header {
+        background: linear-gradient(135deg, var(--hr-bg-secondary) 0%, #1a1040 100%);
+        border-bottom: 1px solid var(--hr-border);
+        padding: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .hr-api-header-inner {
+        max-width: 1460px;
+        margin: 0 auto;
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .hr-api-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .hr-api-logo-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--hr-accent);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
+        box-shadow: 0 0 20px var(--hr-accent-glow);
+      }
+      .hr-api-logo-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--hr-text-primary);
+        letter-spacing: -0.3px;
+      }
+      .hr-api-logo-text span {
+        color: var(--hr-accent);
+      }
+      .hr-api-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .hr-api-nav a {
+        color: var(--hr-text-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: var(--hr-radius-sm);
+        transition: var(--hr-transition);
+        border: 1px solid transparent;
+      }
+      .hr-api-nav a:hover {
+        color: var(--hr-text-primary);
+        background: var(--hr-accent-glow);
+        border-color: var(--hr-border);
+      }
+      .hr-api-nav a.active {
+        color: var(--hr-accent);
+        background: var(--hr-accent-glow);
+        border-color: var(--hr-accent);
+      }
+      .hr-api-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 20px;
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--hr-success);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        letter-spacing: 0.5px;
+      }
+
+      /* ── SWAGGER UI OVERRIDES ── */
+      .swagger-ui {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      }
+      .swagger-ui .wrapper {
+        max-width: 1460px;
+        padding: 0 24px;
+      }
+
+      /* Top info block */
+      .swagger-ui .info {
+        margin: 30px 0 20px;
+      }
+      .swagger-ui .info .title {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 28px !important;
+        font-weight: 700 !important;
+        color: var(--hr-text-primary) !important;
+        letter-spacing: -0.5px;
+      }
+      .swagger-ui .info .title small {
+        background: var(--hr-accent) !important;
+        border-radius: 20px !important;
+        padding: 4px 12px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        vertical-align: middle;
+        position: relative;
+        top: -2px;
+      }
+      .swagger-ui .info .description,
+      .swagger-ui .info .description p {
+        font-family: 'Inter', sans-serif !important;
+        color: var(--hr-text-secondary) !important;
+        font-size: 14px !important;
+        line-height: 1.6 !important;
+      }
+      .swagger-ui .info a {
+        color: var(--hr-accent) !important;
+      }
+      .swagger-ui .info .base-url {
+        color: var(--hr-text-muted) !important;
+        font-size: 13px !important;
+      }
+      .swagger-ui .scheme-container {
+        background: var(--hr-bg-secondary) !important;
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius) !important;
+        box-shadow: none !important;
+        padding: 16px 20px !important;
+        margin: 0 0 20px !important;
+      }
+
+      /* ── FILTER ── */
+      .swagger-ui .filter-container {
+        background: var(--hr-bg-secondary) !important;
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius) !important;
+        margin: 0 0 20px !important;
+        padding: 0 !important;
+      }
+      .swagger-ui .filter input[type="text"] {
+        background: var(--hr-bg-input) !important;
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius-sm) !important;
+        color: var(--hr-text-primary) !important;
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+        font-family: 'Inter', sans-serif !important;
+        margin: 12px 16px !important;
+        width: calc(100% - 32px) !important;
+      }
+      .swagger-ui .filter input[type="text"]:focus {
+        border-color: var(--hr-accent) !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px var(--hr-accent-glow) !important;
+      }
+      .swagger-ui .filter input::placeholder {
+        color: var(--hr-text-muted) !important;
+      }
+
+      /* ── TAG GROUPS ── */
+      .swagger-ui .opblock-tag-section {
+        margin-bottom: 8px;
+      }
+      .swagger-ui .opblock-tag {
+        border-bottom: 1px solid var(--hr-border) !important;
+        font-family: 'Inter', sans-serif !important;
+        color: var(--hr-text-primary) !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        padding: 14px 20px !important;
+        margin: 0 !important;
+        transition: var(--hr-transition);
+        border-radius: var(--hr-radius) var(--hr-radius) 0 0;
+      }
+      .swagger-ui .opblock-tag:hover {
+        background: var(--hr-bg-secondary) !important;
+      }
+      .swagger-ui .opblock-tag small {
+        font-family: 'Inter', sans-serif !important;
+        color: var(--hr-text-muted) !important;
+        font-size: 13px !important;
+        font-weight: 400 !important;
+        padding: 0 0 0 12px !important;
+      }
+      .swagger-ui .opblock-tag svg {
+        fill: var(--hr-text-secondary) !important;
+      }
+
+      /* ── OPERATION BLOCKS ── */
+      .swagger-ui .opblock {
+        border-radius: var(--hr-radius-sm) !important;
+        border: 1px solid var(--hr-border) !important;
+        margin: 0 0 6px !important;
+        box-shadow: none !important;
+        background: var(--hr-bg-secondary) !important;
+      }
+      .swagger-ui .opblock .opblock-summary {
+        border: none !important;
+        padding: 10px 16px !important;
+      }
+      .swagger-ui .opblock .opblock-summary-method {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-radius: var(--hr-radius-sm) !important;
+        padding: 6px 14px !important;
+        min-width: 70px !important;
+        text-align: center !important;
+        letter-spacing: 0.5px;
+      }
+      .swagger-ui .opblock .opblock-summary-path {
+        font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
+        font-size: 13px !important;
+        color: var(--hr-text-primary) !important;
+        font-weight: 500 !important;
+      }
+      .swagger-ui .opblock .opblock-summary-path__deprecated {
+        text-decoration: line-through;
+        opacity: 0.6;
+      }
+      .swagger-ui .opblock .opblock-summary-description {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 13px !important;
+        color: var(--hr-text-muted) !important;
+      }
+
+      /* GET */
+      .swagger-ui .opblock.opblock-get {
+        background: rgba(16, 185, 129, 0.04) !important;
+        border-color: rgba(16, 185, 129, 0.2) !important;
+      }
+      .swagger-ui .opblock.opblock-get .opblock-summary-method {
+        background: var(--hr-get) !important;
+      }
+      .swagger-ui .opblock.opblock-get .opblock-summary {
+        border-color: transparent !important;
+      }
+      /* POST */
+      .swagger-ui .opblock.opblock-post {
+        background: rgba(59, 130, 246, 0.04) !important;
+        border-color: rgba(59, 130, 246, 0.2) !important;
+      }
+      .swagger-ui .opblock.opblock-post .opblock-summary-method {
+        background: var(--hr-post) !important;
+      }
+      /* PUT */
+      .swagger-ui .opblock.opblock-put {
+        background: rgba(245, 158, 11, 0.04) !important;
+        border-color: rgba(245, 158, 11, 0.2) !important;
+      }
+      .swagger-ui .opblock.opblock-put .opblock-summary-method {
+        background: var(--hr-put) !important;
+      }
+      /* PATCH */
+      .swagger-ui .opblock.opblock-patch {
+        background: rgba(139, 92, 246, 0.04) !important;
+        border-color: rgba(139, 92, 246, 0.2) !important;
+      }
+      .swagger-ui .opblock.opblock-patch .opblock-summary-method {
+        background: var(--hr-patch) !important;
+      }
+      /* DELETE */
+      .swagger-ui .opblock.opblock-delete {
+        background: rgba(239, 68, 68, 0.04) !important;
+        border-color: rgba(239, 68, 68, 0.2) !important;
+      }
+      .swagger-ui .opblock.opblock-delete .opblock-summary-method {
+        background: var(--hr-danger) !important;
+      }
+
+      /* Expanded body */
+      .swagger-ui .opblock-body {
+        background: var(--hr-bg-secondary) !important;
+      }
+      .swagger-ui .opblock-body pre,
+      .swagger-ui .opblock-body pre.microlight {
+        background: var(--hr-bg-primary) !important;
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius-sm) !important;
+        color: var(--hr-text-primary) !important;
+        font-size: 13px !important;
+        padding: 16px !important;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
+      }
+      .swagger-ui .opblock-description-wrapper,
+      .swagger-ui .opblock-external-docs-wrapper {
+        padding: 12px 20px !important;
+        color: var(--hr-text-secondary) !important;
+      }
+
+      /* ── PARAMETERS & REQUEST BODY ── */
+      .swagger-ui table thead tr th,
+      .swagger-ui table thead tr td,
+      .swagger-ui .parameters-col_description p,
+      .swagger-ui .parameter__name,
+      .swagger-ui .parameter__type,
+      .swagger-ui .parameter__extension,
+      .swagger-ui .parameter__in {
+        color: var(--hr-text-secondary) !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+      .swagger-ui .parameter__name.required span {
+        color: var(--hr-danger) !important;
+      }
+      .swagger-ui .parameter__name.required::after {
+        color: var(--hr-danger) !important;
+      }
+      .swagger-ui table tbody tr td {
+        border-color: var(--hr-border) !important;
+        color: var(--hr-text-primary) !important;
+      }
+      .swagger-ui .parameters-col_name {
+        color: var(--hr-text-primary) !important;
+      }
+
+      /* Inputs */
+      .swagger-ui input[type="text"],
+      .swagger-ui input[type="password"],
+      .swagger-ui input[type="file"],
+      .swagger-ui textarea,
+      .swagger-ui select {
+        background: var(--hr-bg-input) !important;
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius-sm) !important;
+        color: var(--hr-text-primary) !important;
+        font-family: 'Inter', sans-serif !important;
+        padding: 8px 12px !important;
+        transition: var(--hr-transition);
+      }
+      .swagger-ui input:focus,
+      .swagger-ui textarea:focus,
+      .swagger-ui select:focus {
+        border-color: var(--hr-accent) !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px var(--hr-accent-glow) !important;
+      }
+      .swagger-ui select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%239ca3b4' viewBox='0 0 20 20'%3E%3Cpath d='M7 7l3-3 3 3m0 6l-3 3-3-3'/%3E%3C/svg%3E") !important;
+      }
+
+      /* ── BUTTONS ── */
+      .swagger-ui .btn {
+        border-radius: var(--hr-radius-sm) !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        transition: var(--hr-transition);
+      }
+      .swagger-ui .btn.execute {
+        background: var(--hr-accent) !important;
+        border-color: var(--hr-accent) !important;
+        color: white !important;
+        border-radius: var(--hr-radius-sm) !important;
+      }
+      .swagger-ui .btn.execute:hover {
+        background: var(--hr-accent-hover) !important;
+      }
+      .swagger-ui .btn.cancel {
+        font-family: 'Inter', sans-serif !important;
+        border-color: var(--hr-border) !important;
+        color: var(--hr-text-secondary) !important;
+      }
+      .swagger-ui .btn.authorize {
+        border-color: var(--hr-accent) !important;
+        color: var(--hr-accent) !important;
+      }
+      .swagger-ui .btn.authorize svg {
+        fill: var(--hr-accent) !important;
+      }
+
+      /* Auth dialog */
+      .swagger-ui .dialog-ux .modal-ux {
+        background: var(--hr-bg-card) !important;
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius) !important;
+        box-shadow: var(--hr-shadow-lg) !important;
+      }
+      .swagger-ui .dialog-ux .modal-ux-header {
+        border-bottom: 1px solid var(--hr-border) !important;
+      }
+      .swagger-ui .dialog-ux .modal-ux-header h3 {
+        color: var(--hr-text-primary) !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+      .swagger-ui .dialog-ux .modal-ux-content p,
+      .swagger-ui .dialog-ux .modal-ux-content label {
+        color: var(--hr-text-secondary) !important;
+      }
+      .swagger-ui .dialog-ux .backdrop-ux {
+        background: rgba(0, 0, 0, 0.6) !important;
+      }
+
+      /* ── RESPONSES ── */
+      .swagger-ui .responses-inner {
+        padding: 10px 20px !important;
+      }
+      .swagger-ui .responses-wrapper,
+      .swagger-ui .response-col_description__inner p {
+        color: var(--hr-text-secondary) !important;
+      }
+      .swagger-ui .response-col_status {
+        color: var(--hr-text-primary) !important;
+        font-weight: 600 !important;
+      }
+      .swagger-ui .responses-table thead td {
+        color: var(--hr-text-muted) !important;
+      }
+      .swagger-ui .response-col_links {
+        color: var(--hr-text-muted) !important;
+      }
+
+      /* Response codes */
+      .swagger-ui .response .response-col_status {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+      }
+
+      /* ── MODELS / SCHEMAS ── */
+      .swagger-ui section.models {
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius) !important;
+        background: var(--hr-bg-secondary) !important;
+      }
+      .swagger-ui section.models h4 {
+        color: var(--hr-text-primary) !important;
+        font-family: 'Inter', sans-serif !important;
+        border-color: var(--hr-border) !important;
+      }
+      .swagger-ui section.models .model-container {
+        background: var(--hr-bg-card) !important;
+        border-radius: var(--hr-radius-sm) !important;
+        margin: 4px 0 !important;
+      }
+      .swagger-ui .model {
+        color: var(--hr-text-secondary) !important;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+        font-size: 13px !important;
+      }
+      .swagger-ui .model-title {
+        color: var(--hr-text-primary) !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+      .swagger-ui .model .property {
+        color: var(--hr-accent) !important;
+      }
+      .swagger-ui .model .property.primitive {
+        color: var(--hr-success) !important;
+      }
+      .swagger-ui section.models .model-box {
+        background: transparent !important;
+      }
+
+      /* ── LOADING ── */
+      .swagger-ui .loading-container {
+        padding: 60px 0 !important;
+      }
+      .swagger-ui .loading-container .loading::after {
+        color: var(--hr-text-muted) !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+
+      /* ── SCROLLBAR ── */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--hr-bg-primary);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--hr-border-light);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--hr-text-muted);
+      }
+
+      /* ── MISC ── */
+      .swagger-ui .model-toggle::after {
+        filter: invert(0.7);
+      }
+      .swagger-ui svg:not(:root) {
+        fill: var(--hr-text-secondary);
+      }
+      .swagger-ui .authorization__btn svg {
+        fill: var(--hr-accent) !important;
+      }
+      .swagger-ui .authorization__btn.locked svg {
+        fill: var(--hr-success) !important;
+      }
+      .swagger-ui .authorization__btn.unlocked svg {
+        fill: var(--hr-warning) !important;
+      }
+      .swagger-ui .servers-title,
+      .swagger-ui .servers>label {
+        color: var(--hr-text-secondary) !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+      .swagger-ui .markdown p,
+      .swagger-ui .markdown li,
+      .swagger-ui .renderedMarkdown p {
+        color: var(--hr-text-secondary) !important;
+      }
+
+      /* Tab styles inside operations */
+      .swagger-ui .tab li {
+        color: var(--hr-text-secondary) !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+      .swagger-ui .tab li.active {
+        color: var(--hr-text-primary) !important;
+      }
+      .swagger-ui .opblock-section-header {
+        background: var(--hr-bg-card) !important;
+        border-bottom: 1px solid var(--hr-border) !important;
+        box-shadow: none !important;
+      }
+      .swagger-ui .opblock-section-header h4 {
+        color: var(--hr-text-primary) !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 13px !important;
+      }
+      .swagger-ui .opblock-section-header label {
+        color: var(--hr-text-secondary) !important;
+      }
+
+      /* Copy to clipboard */
+      .swagger-ui .copy-to-clipboard {
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius-sm) !important;
+        background: var(--hr-bg-card) !important;
+      }
+
+      /* Try it out button */
+      .swagger-ui .try-out__btn {
+        border-color: var(--hr-accent) !important;
+        color: var(--hr-accent) !important;
+        font-family: 'Inter', sans-serif !important;
+      }
+      .swagger-ui .try-out__btn:hover {
+        background: var(--hr-accent-glow) !important;
+      }
+
+      /* Response header */
+      .swagger-ui .responses-header td.col_header {
+        color: var(--hr-text-muted) !important;
+      }
+
+      .swagger-ui .response-control-media-type__title {
+        color: var(--hr-text-muted) !important;
+      }
+      .swagger-ui .response-control-media-type--accept-controller select {
+        border-color: var(--hr-success) !important;
+      }
+
+      /* Links */
+      .swagger-ui a {
+        color: var(--hr-accent) !important;
+      }
+
+      /* JSON viewer */
+      .swagger-ui .highlight-code>.microlight {
+        background: var(--hr-bg-primary) !important;
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius-sm) !important;
+        color: #e8e9ed !important;
+      }
+
+      /* ── LIVE RESPONSE ── */
+      .swagger-ui .live-responses-table .response-col_status {
+        font-family: 'JetBrains Mono', monospace !important;
+      }
+      .swagger-ui .request-url {
+        color: var(--hr-text-primary) !important;
+      }
+      .swagger-ui .request-url pre {
+        background: var(--hr-bg-primary) !important;
+        color: var(--hr-success) !important;
+        border: 1px solid var(--hr-border) !important;
+        border-radius: var(--hr-radius-sm) !important;
+      }
+
+      /* ── FOOTER ── */
+      .hr-api-footer {
+        background: var(--hr-bg-secondary);
+        border-top: 1px solid var(--hr-border);
+        padding: 20px 24px;
+        text-align: center;
+        margin-top: 40px;
+      }
+      .hr-api-footer p {
+        color: var(--hr-text-muted);
+        font-size: 13px;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+    {% endblock head %}
+  </head>
+  <body>
+    {% block body %}
+    <!-- Custom API Header -->
+    <div class="hr-api-header">
+      <div class="hr-api-header-inner">
+        <div class="hr-api-logo">
+          <div class="hr-api-logo-icon">HR</div>
+          <div class="hr-api-logo-text">HR System <span>API</span></div>
+          <div class="hr-api-badge">v1.0.0</div>
+        </div>
+        <div class="hr-api-nav">
+          <a href="/api/docs/" class="active">Swagger</a>
+          <a href="/api/redoc/">ReDoc</a>
+          <a href="/admin/">Admin</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="swagger-ui"></div>
+
+    <!-- Custom Footer -->
+    <div class="hr-api-footer">
+      <p>HR System API &mdash; AI-Driven Human Resources Platform &mdash; OpenAPI 3.0</p>
+    </div>
+
+    <script src="{{ swagger_ui_bundle }}"></script>
+    <script src="{{ swagger_ui_standalone }}"></script>
+    {% if script_url %}
+    <script src="{{ script_url }}"></script>
+    {% else %}
+    <script>
+    {% include template_name_js %}
+    </script>
+    {% endif %}
+    {% endblock %}
+  </body>
+</html>

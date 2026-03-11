@@ -1,0 +1,297 @@
+AI JOB DESCRIPTION GENERATOR – BACKEND ARCHITECTURE MAP 
+
+(100% User Story Coverage – JD Engine as System of Record) 
+
+Note 
+This is a high-level backend system map for the JD Engine. 
+JD Engine is a governed domain service, not a content generator. 
+Final scope and rollout depend on phase prioritization.   
+
+1. CORE SERVICES 
+
+A. API Gateway 
+
+• Request routing 
+• Authentication & Authorization 
+• Rate limiting 
+• Request logging 
+• CORS handling 
+• Payload validation 
+• Tenant isolation middleware 
+• JD access control enforcement 
+
+B. Authentication & Authorization Service 
+
+• User login / logout 
+• JWT token issuance 
+• Role-based access control (HR, Manager, Approver, Auditor) 
+• JD approval permission checks 
+• Session & token lifecycle 
+• Audit identity propagation 
+
+2. JD DOMAIN SERVICES (CORE BUSINESS LOGIC) 
+
+A. Job Analysis Service (Input Layer) 
+
+Endpoints 
+POST /api/jd/job-analysis 
+GET /api/jd/job-analysis/{id} 
+
+ 
+ 
+ 
+PUT /api/jd/job-analysis/{id} 
+GET /api/jd/job-analysis/{id}/status 
+
+Business Logic 
+• Enforce structured questionnaire only (no free text JD creation) 
+• Mandatory fields validation (tasks, skills, reporting line, tools) 
+• Draft / Submitted states 
+• Lock inputs once AI generation starts 
+• Version raw inputs for traceability 
+
+B. JD Generation Service (AI Structuring Layer) 
+
+Endpoints 
+POST /api/jd/generate 
+GET /api/jd/{jdId}/draft 
+
+Business Logic 
+• Convert job analysis inputs → structured JD model 
+• Generate machine-readable JD, not prose 
+• Normalize skills, competencies, role level 
+• Output sections: 
+
+• 
+
+Job purpose 
+
+•  Responsibilities 
+
+•  Competencies 
+
+•  Proficiency levels 
+
+•  KPIs 
+
+• No approval authority here (AI suggests only) 
+
+C. JD Benchmarking Service 
+
+Endpoints 
+POST /api/jd/{jdId}/benchmark 
+GET /api/jd/{jdId}/benchmark/report 
+
+ 
+ 
+Business Logic 
+• Benchmark JD against external role libraries (O*NET / ESCO / Industry DB) 
+• Detect: 
+
+•  Role inflation 
+
+•  Missing core competencies 
+
+•  Unrealistic experience levels 
+• Generate deviation flags 
+• Store benchmark dataset version used 
+
+D. JD Validation & Rules Engine 
+
+Endpoints 
+POST /api/jd/{jdId}/validate 
+GET /api/jd/{jdId}/validation-results 
+
+Business Logic 
+• Deterministic rules override AI output 
+• Validate: 
+
+•  Role level vs experience 
+
+•  Mandatory competencies 
+
+•  Reporting consistency 
+
+• Rule priority & conflict resolution 
+• Validation must pass before approval 
+
+E. JD Approval & Governance Service 
+
+Endpoints 
+POST /api/jd/{jdId}/submit-approval 
+POST /api/jd/{jdId}/approve 
+POST /api/jd/{jdId}/reject 
+GET /api/jd/{jdId}/approval-history 
+
+Business Logic 
+• HR Manager approval required 
+• Approval freezes JD content 
+
+ 
+ 
+• Rejection requires reason 
+• Approved JD becomes immutable 
+• Approval events fully audited 
+
+F. JD Versioning & Change Management Service 
+
+Endpoints 
+POST /api/jd/{jdId}/version 
+GET /api/jd/{jdId}/versions 
+GET /api/jd/version/{versionId} 
+
+Business Logic 
+• Every change = new version 
+• No overwrite allowed 
+• Preserve historical references 
+• Vacancy & hiring decisions reference JD version explicitly 
+
+G. JD Distribution / Exposure Service 
+
+Endpoints 
+GET /api/jd/{jdId}/export 
+GET /api/jd/{jdId}/model 
+GET /api/jd/{jdId}/consumer-access 
+
+Business Logic 
+• Expose JD as machine-readable JSON model 
+• Consumer engines: 
+
+•  AI Recruiter 
+
+•  Performance 
+
+•  TNA 
+
+•  Mobility / Promotion 
+
+• Enforce read-only access 
+• Version-specific consumption 
+
+3. SUPPORTING SERVICES 
+
+ 
+ 
+ 
+A. AI Proxy Service 
+
+• JD structuring 
+• Competency normalization 
+• Benchmark comparison 
+• Explainability payloads 
+
+B. Rules Configuration Service 
+
+• Business rule definitions 
+• Competency frameworks 
+• Role level mappings 
+• Configurable per tenant 
+
+C. Audit & Compliance Service 
+
+• JD lifecycle logging 
+• Approval traceability 
+• Version lineage 
+• Regulatory defensibility 
+
+D. Notification Service 
+
+• JD approval requests 
+• Rejection notifications 
+• Change impact alerts 
+
+4. DATABASE ARCHITECTURE 
+
+Core Tables 
+
+A. Job_Analysis_Inputs 
+
+• id (PK) 
+• created_by 
+• role_title 
+• department 
+• tasks (JSON) 
+
+ 
+ 
+ 
+ 
+• tools (JSON) 
+• reporting_line 
+• working_conditions 
+• status (Draft / Submitted) 
+• created_at 
+
+B. Job_Descriptions 
+
+• id (PK) 
+• current_version_id (FK) 
+• status (Draft / Approved / Archived) 
+• created_by 
+• approved_by 
+• approved_at 
+
+C. Job_Description_Versions 
+
+• id (PK) 
+• jd_id (FK) 
+• version_number 
+• structured_model (JSON) 
+• benchmark_summary (JSON) 
+• validation_results (JSON) 
+• created_at 
+
+D. JD_Competencies 
+
+• id (PK) 
+• jd_version_id (FK) 
+• competency_name 
+• proficiency_level 
+• weight 
+• is_mandatory 
+
+E. JD_Benchmark_Results 
+
+ 
+ 
+ 
+ 
+• id (PK) 
+• jd_version_id (FK) 
+• benchmark_source 
+• deviations (JSON) 
+• risk_flags 
+• created_at 
+
+F. JD_Approval_Logs 
+
+• id (PK) 
+• jd_version_id (FK) 
+• action (Submitted / Approved / Rejected) 
+• actor_id 
+• reason 
+• timestamp 
+
+G. JD_Consumer_References 
+
+• id (PK) 
+• jd_version_id (FK) 
+• consumer_service 
+• reference_type (Vacancy / KPI / Promotion) 
+• referenced_at 
+
+5. USER STORY COVERAGE 
+
+     Capture Job Analysis Inputs 
+     AI Structured JD Generation 
+     Industry Benchmarking 
+     Deterministic Validation Rules 
+     HR Approval & Governance 
+     Immutable Versioning 
+     Machine-Readable Exposure 
+
+ 
+ 
+ 
+ 
+

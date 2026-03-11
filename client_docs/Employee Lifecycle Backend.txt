@@ -1,0 +1,391 @@
+EMPLOYEE LIFECYCLE AUTOMATION – BACKEND ARCHITECTURE MAP 
+
+Note 
+This is a high-level backend system map. 
+Employee Lifecycle Engine is a state-driven, approval-enforced system, not just workflows. 
+Final scope, timelines, and cost depend on phase prioritization. 
+
+1. CORE SERVICES 
+
+A. API Gateway 
+
+• Request routing 
+• Authentication & Authorization 
+• Rate limiting 
+• Request logging 
+• CORS handling 
+• Payload validation 
+• Tenant isolation middleware 
+• Approval-required action enforcement 
+
+B. Authentication & Authorization Service 
+
+• User login / logout 
+• JWT token generation 
+• Role-based access control (HR, Manager, Employee, Payroll, Legal, IT, Auditor) 
+• Session management 
+• Secure token refresh 
+• Approval authority resolution 
+• Audit identity propagation 
+
+2. BUSINESS LOGIC SERVICES 
+
+A. Preboarding Orchestration Service 
+
+(Triggered only after Hiring Decision = Hire) 
+
+ 
+ 
+ 
+ 
+Endpoints 
+POST /api/preboarding/initiate/{candidateId} 
+GET /api/preboarding/{employeeId}/status 
+POST /api/preboarding/{employeeId}/complete 
+
+Business Logic 
+• Triggered only from approved hiring decision 
+• Convert candidate → employee (soft state) 
+• Enforce mandatory preboarding steps 
+• Block onboarding until preboarding completion 
+• Maintain lifecycle state machine 
+
+B. Offer Letter Service (Approval-Enforced) 
+
+Endpoints 
+POST /api/offers/generate 
+PUT /api/offers/{id} 
+POST /api/offers/{id}/submit-approval 
+POST /api/offers/{id}/approve 
+POST /api/offers/{id}/reject 
+POST /api/offers/{id}/send 
+GET /api/offers/{id}/status 
+
+Business Logic 
+• Generate offer from approved templates only 
+• Auto-populate role, JD, salary, benefits 
+• Editable before submission only 
+• Mandatory approval workflow (configurable) 
+• Offer immutable after approval 
+• Status tracking (Draft / In Approval / Approved / Sent / Accepted / Rejected) 
+• Full audit trail 
+
+C. Contract Generation Service 
+
+Endpoints 
+POST /api/contracts/generate 
+POST /api/contracts/{id}/submit-approval 
+POST /api/contracts/{id}/approve 
+
+ 
+ 
+POST /api/contracts/{id}/send-signature 
+GET /api/contracts/{id}/status 
+
+Business Logic 
+• Integrates with Global Labor Law Engine 
+• Enforces contract type rules (Permanent / Fixed / Part-Time / Remote) 
+• Injects company mandatory clauses (Policy-as-Data) 
+• Contract versioning & immutability 
+• Approval required before e-signature 
+• Contract locked after signature 
+
+D. E-Signature & Legal Validation Service 
+
+Endpoints 
+POST /api/contracts/{id}/sign 
+GET /api/contracts/{id}/signature-status 
+
+Business Logic 
+• Signature allowed only after approval 
+• Signature timestamp capture 
+• Legal completion gate for employment 
+• Signature evidence storage 
+• Signature audit logging 
+
+E. Employee Data Collection Service (Privacy-Critical) 
+
+Endpoints 
+POST /api/employees/{id}/personal-data 
+PUT /api/employees/{id}/personal-data 
+GET /api/employees/{id}/personal-data 
+
+Business Logic 
+• Secure employee self-service data entry 
+• Mandatory field enforcement 
+• Draft & submit workflow 
+• Field-level encryption 
+• Role-based data visibility 
+• Sensitive data masking 
+• GDPR / SOC2 / ISO27001 compliance logging 
+
+ 
+ 
+F. Onboarding Workflow Service 
+
+Endpoints 
+POST /api/onboarding/initiate/{employeeId} 
+GET /api/onboarding/{employeeId}/checklist 
+POST /api/onboarding/{employeeId}/tasks/complete 
+GET /api/onboarding/{employeeId}/status 
+
+Business Logic 
+• Role-based onboarding checklist generation 
+• Task assignment to HR / IT / Manager 
+• Dependency enforcement between tasks 
+• Orientation scheduling 
+• Onboarding progress tracking 
+• Completion gate before probation start 
+
+G. Probation & Employment State Service 
+
+Endpoints 
+POST /api/probation/start/{employeeId} 
+POST /api/probation/{employeeId}/review 
+POST /api/probation/{employeeId}/confirm 
+GET /api/probation/{employeeId}/status 
+
+Business Logic 
+• Probation start after onboarding completion 
+• Probation period rules (country & company specific) 
+• Manager evaluation capture 
+• Confirmation / extension / termination decisions 
+• Employment state transition logging 
+
+H. Offboarding Orchestration Service 
+
+Endpoints 
+POST /api/offboarding/initiate/{employeeId} 
+GET /api/offboarding/{employeeId}/checklist 
+POST /api/offboarding/{employeeId}/complete 
+
+ 
+ 
+ 
+Business Logic 
+• Exit initiation (voluntary / involuntary) 
+• Asset & access revocation checklist 
+• Exit interview trigger 
+• Dependency on final settlement approval 
+• Legal closure enforcement 
+
+I. Final Settlement & Exit Approval Service 
+
+Endpoints 
+POST /api/final-settlement/calculate/{employeeId} 
+POST /api/final-settlement/{id}/submit-approval 
+POST /api/final-settlement/{id}/approve 
+GET /api/final-settlement/{id}/status 
+
+Business Logic 
+• Settlement breakdown (salary, leave, deductions, EOSB) 
+• Multi-level approval required 
+• Block payroll execution until approval 
+• Payslip generated post-approval only 
+• Financial audit trail 
+
+J. Unified Approval Workflow Service (Cross-Module) 
+
+Endpoints 
+POST /api/approvals/request 
+POST /api/approvals/{id}/approve 
+POST /api/approvals/{id}/reject 
+GET /api/approvals/{id}/history 
+
+Business Logic 
+• Central approval abstraction 
+• Configurable approval chains 
+• Applies to: 
+
+•  Offer letters 
+
+•  Contracts 
+
+ 
+ 
+•  Final settlements 
+
+• SLA tracking & escalation 
+• Approval auditability 
+
+3. INTEGRATION SERVICES 
+
+A. Recruitment Integration Service 
+
+• Candidate → Employee handoff 
+• Hiring decision validation 
+• Vacancy & JD reference locking 
+
+B. Payroll Integration Service 
+
+• Final settlement execution 
+• Payroll blocking rules 
+• Payslip generation trigger 
+
+C. Global Labor Law Engine 
+
+• Country-specific contract rules 
+• Probation & notice period enforcement 
+• Mandatory clause injection 
+
+D. Document & E-Signature Service 
+
+• Offer & contract storage 
+• Versioned documents 
+• Secure access 
+• Legal evidence retention 
+
+E. Notification Service 
+
+• Offer sent / accepted 
+• Contract signature reminders 
+
+ 
+ 
+ 
+ 
+ 
+• Onboarding task alerts 
+• Exit & settlement notifications 
+
+4. DATABASE (SUMMARY) 
+
+• Employees 
+• Employee_Lifecycle_States 
+• Offers 
+• Offer_Templates 
+• Contracts 
+• Contract_Versions 
+• Contract_Signatures 
+• Employee_Personal_Data 
+• Onboarding_Checklists 
+• Onboarding_Tasks 
+• Probation_Records 
+• Offboarding_Records 
+• Final_Settlements 
+• Approval_Requests 
+• Approval_Actions 
+• Audit_Logs 
+
+DATABASE ARCHITECTURE 
+
+A. Employees 
+
+• id (PK) 
+• candidate_id (FK) 
+• jd_id (FK) 
+• employment_status (Preboarding / Active / Exiting / Terminated) 
+• hire_date 
+• termination_date 
+
+B. Employee_Lifecycle_States 
+
+• id (PK) 
+• employee_id (FK) 
+
+ 
+ 
+ 
+• state 
+• entered_at 
+• exited_at 
+
+C. Offers 
+
+• id (PK) 
+• employee_id (FK) 
+• template_version_id 
+• salary_data (JSON) 
+• benefits (JSON) 
+• status 
+• approved_at 
+• sent_at 
+• accepted_at 
+
+D. Contracts 
+
+• id (PK) 
+• employee_id (FK) 
+• country_code 
+• contract_type 
+• labor_law_version 
+• policy_version 
+• status 
+
+E. Contract_Signatures 
+
+• id (PK) 
+• contract_id (FK) 
+• signed_at 
+• signature_provider 
+• evidence_path 
+
+F. Employee_Personal_Data 
+
+ 
+ 
+ 
+ 
+• id (PK) 
+• employee_id (FK) 
+• encrypted_payload 
+• last_updated 
+
+G. Onboarding_Tasks 
+
+• id (PK) 
+• employee_id (FK) 
+• task_type 
+• assigned_to_role 
+• status 
+• completed_at 
+
+H. Final_Settlements 
+
+• id (PK) 
+• employee_id (FK) 
+• breakdown (JSON) 
+• approval_status 
+• executed_at 
+
+I. Approval_Requests 
+
+• id (PK) 
+• entity_type 
+• entity_id 
+• status 
+• requested_by 
+• created_at 
+
+J. Audit_Logs 
+
+• id (PK) 
+• user_id 
+• action 
+
+ 
+ 
+ 
+ 
+• entity_type 
+• entity_id 
+• timestamp 
+
+USER STORY COVERAGE 
+
+     EPIC 1 – Preboarding Automation 
+     EPIC 2 – Employee Data Collection 
+
+     EPIC 3 – Secure Onboarding 
+     EPIC 4 – Probation Tracking 
+
+     EPIC 5 – Offboarding Automation 
+
+     EPIC 6 – Final Settlement Approval 
+
+     Unified Approval Layer (System Rule) 
+
+ 
+ 
+ 
+

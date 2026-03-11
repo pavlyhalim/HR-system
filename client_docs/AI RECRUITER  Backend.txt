@@ -1,0 +1,1417 @@
+AI RECRUITER ENGINE – BACKEND ARCHITECTURE MAP 
+
+(100% User Story Coverage – Clean & Focused) 
+
+Note 
+This is a high-level backend system map. Final scope, timelines, and cost depend on phase 
+prioritization. 
+
+1. CORE SERVICES 
+
+A. API Gateway 
+
+• Request routing 
+• Authentication & Authorization 
+• Rate limiting 
+• Request logging 
+• CORS handling 
+• Integrity data encryption middleware 
+• Job ad analytics tracking 
+
+B. Authentication Service 
+
+• User login / logout 
+• JWT token generation 
+• Role-based access control (HR, Recruiter, Candidate, Interviewer, Manager) 
+• Session management 
+• Password reset 
+• Consent token generation (Interview Integrity) 
+• SSO support (optional) 
+
+2. BUSINESS LOGIC SERVICES 
+
+A. Vacancy Service (JD-Driven) 
+
+Endpoints 
+
+POST      /api/vacancies 
+
+GET        /api/vacancies 
+
+GET        /api/vacancies/{id} 
+
+PUT        /api/vacancies/{id} 
+
+ 
+ 
+ 
+PATCH    /api/vacancies/{id}/status 
+
+DELETE /api/vacancies/{id} 
+
+GET        /api/vacancies/{id}/jd 
+
+GET        /api/vacancies/{id}/pipeline 
+
+GET        /api/vacancies/{id}/analytics 
+
+Business Logic 
+• Enforce approved JD linkage (mandatory) 
+• Track JD version for audit 
+• Vacancy lifecycle rules (Draft/Open/Closed) 
+• Prevent deletion if candidates exist 
+• Trigger job ad generation 
+• Track vacancy KPIs 
+
+B. Job Advertisement Service 
+
+Endpoints 
+
+POST      /api/job-ads/generate 
+
+GET        /api/job-ads/{vacancyId} 
+
+PUT        /api/job-ads/{vacancyId} 
+
+POST      /api/job-ads/{vacancyId}/publish 
+
+GET        /api/job-ads/{vacancyId}/performance 
+
+Business Logic 
+• Generate ads from JD (AI-powered) 
+• SEO optimization 
+• Multi-channel publishing (LinkedIn, Indeed, Career Portal) 
+• Performance & conversion tracking 
+• Template versioning 
+
+C. Candidate Service 
+
+Endpoints 
+
+POST      /api/candidates 
+
+POST      /api/candidates/bulk-upload 
+
+ 
+ 
+POST      /api/candidates/apply/{vacancyId} 
+
+GET        /api/candidates 
+
+GET        /api/candidates/{id} 
+
+GET        /api/vacancies/{id}/candidates 
+
+GET        /api/candidates/{id}/ranked 
+
+POST      /api/candidates/{id}/move-stage 
+
+Business Logic 
+• CV parsing (AI) 
+• Competency extraction 
+• JD-based scoring & ranking 
+• Pipeline stage management 
+• Source tracking (job board / referral / internal) 
+
+D. Interview Service (AI + Traditional) 
+
+Endpoints 
+
+POST      /api/interviews/questions/generate 
+
+POST      /api/interviews/avatar/invite 
+
+POST      /api/interviews/traditional/schedule 
+
+POST      /api/interviews/{id}/start 
+
+POST      /api/interviews/{id}/responses 
+
+POST      /api/interviews/{id}/feedback 
+
+POST      /api/interviews/{id}/calibrate 
+
+GET        /api/interviews/{id}/analysis 
+
+GET        /api/interviews/{id}/video 
+
+Business Logic 
+• JD-based question generation 
+• Difficulty auto-adjustment from JD level 
+• Interview state machine 
+• Traditional interviewer feedback collection 
+• Bias detection & calibration 
+• Secure video handling 
+
+ 
+E. Interview Integrity Service 
+
+Endpoints 
+
+POST      /api/integrity/configure/{interviewId} 
+
+POST      /api/integrity/signals/capture 
+
+POST      /api/integrity/analyze/{interviewId} 
+
+GET        /api/integrity/report/{interviewId} 
+
+DELETE /api/integrity/data/{interviewId} 
+
+Business Logic 
+• Eye gaze & attention capture 
+• Behavioral anomaly detection 
+• Context-aware scoring (question difficulty) 
+• Integrity risk calculation 
+• Consent enforcement & GDPR deletion 
+
+F. Interview Scheduling Service 
+
+Endpoints 
+
+GET        /api/scheduling/interviewers 
+
+GET        /api/scheduling/slots/check 
+
+POST      /api/scheduling/slots/book 
+
+POST      /api/scheduling/reminders/send 
+
+Business Logic 
+• Interviewer availability 
+• Calendar sync (Google / Outlook) 
+• Slot conflict detection 
+• Automatic reminders & no-show tracking 
+
+G. Business Rules Engine 
+
+Endpoints 
+
+POST      /api/rules/validate 
+
+ 
+ 
+ 
+GET        /api/rules/{category} 
+
+POST      /api/rules/exceptions/request 
+
+Business Logic 
+• Centralized eligibility rules 
+• Promotion / mobility / succession validation 
+• Rule priority & conflict detection 
+• Exception workflow 
+• Audit trail 
+
+H. Decision Service 
+
+Endpoints 
+
+GET        /api/decisions/recommendations/{vacancyId} 
+
+POST      /api/decisions/{id}/approve 
+
+POST      /api/decisions/{id}/override 
+
+GET        /api/decisions/{id}/history 
+
+Business Logic 
+• Combine CV + Interview + Integrity scores 
+• JD-weighted scoring 
+• Rules validation before recommendation 
+• Human override with justification 
+• Time-to-hire & cost tracking 
+
+I. Internal Mobility Service 
+
+Endpoints 
+
+POST      /api/mobility/scan 
+
+GET        /api/mobility/{roleId}/matches 
+
+POST      /api/mobility/{employeeId}/apply 
+
+Business Logic 
+• JD-based role matching 
+• Skill gap analysis 
+• Eligibility rules enforcement 
+• Manager endorsement 
+
+ 
+ 
+J. Succession Planning Service 
+
+Endpoints 
+
+POST      /api/succession/roles 
+
+POST      /api/succession/{roleId}/identify 
+
+GET        /api/succession/matrix 
+
+Business Logic 
+• JD as benchmark 
+• Readiness calculation (Ready / 6-12 / 12+) 
+• Development tracking 
+• Coverage validation 
+
+K. Promotion Service 
+
+Endpoints 
+
+POST      /api/promotions/initiate 
+
+GET        /api/promotions/eligible 
+
+POST      /api/promotions/{employeeId}/evaluate 
+
+POST      /api/promotions/{id}/approve 
+
+Business Logic 
+• Eligibility rules (tenure, performance) 
+• JD progression comparison 
+• Promotion scoring (AI) 
+• Exception handling 
+
+3. INTEGRATION SERVICES 
+
+A. JD Integration Service 
+
+• Fetch approved JDs 
+• Competencies & proficiency levels 
+• JD versioning 
+• Career ladder mapping 
+
+ 
+ 
+ 
+ 
+B. AI Proxy Service 
+
+• CV parsing 
+• Candidate scoring vs JD 
+• Question generation 
+• Interview & integrity analysis 
+• Promotion & mobility scoring 
+
+C. Notification Service 
+
+• Interview invitations 
+• Consent reminders 
+• Interview reminders 
+• Offer / rejection emails 
+
+D. Document & Media Service 
+
+• CV & video storage 
+• Secure streaming 
+• Transcription 
+• Report generation (PDF) 
+• GDPR deletion 
+
+4. DATABASE (SUMMARY) 
+
+• Vacancies (JD-linked) 
+• Job_Advertisements 
+• Candidates 
+• Candidate_Vacancy 
+• Interviews 
+• Interview_Feedback 
+• Interview_Integrity_Signals 
+• Hiring_Decisions 
+• Business_Rules 
+• Rule_Exceptions 
+• Internal_Mobility 
+• Succession_Plans 
+• Promotions 
+• Audit_Logs 
+
+ 
+ 
+ 
+ 
+DATABASE ARCHITECTURE 
+
+1. Core Tables 
+
+A. Vacancies 
+
+• 
+
+• 
+
+• 
+
+• 
+
+• 
+
+id (PK) 
+
+jd_id (FK to JD Engine) 
+
+jd_version 
+
+title 
+
+role_level 
+
+•  department 
+
+•  employment_type (Full-Time / Part-Time / Contract) 
+
+• 
+
+location 
+
+•  status (Draft / Open / Closed) 
+
+• 
+
+• 
+
+job_ad_status (Draft / Published / Closed) 
+
+is_internal (boolean) 
+
+•  created_by (FK to Users) 
+
+•  created_at 
+
+•  updated_at 
+
+•  closed_at 
+
+B. Job_Advertisements 
+
+• 
+
+• 
+
+id (PK) 
+
+vacancy_id (FK) 
+
+•  generated_content (TEXT) 
+
+• 
+
+• 
+
+• 
+
+template_id (FK, nullable) 
+
+tone (Professional / Friendly / Bold) 
+
+length (Short / Medium / Detailed) 
+
+•  seo_keywords (JSON) 
+
+•  company_branding (JSON) 
+
+ 
+ 
+ 
+•  status (Draft / Published / Closed) 
+
+•  generated_at 
+
+•  published_at 
+
+•  closed_at 
+
+C. Job_Ad_Publications 
+
+• 
+
+• 
+
+id (PK) 
+
+job_ad_id (FK) 
+
+•  platform (LinkedIn / Indeed / CareerPortal / Custom) 
+
+•  platform_job_id 
+
+•  posted_at 
+
+•  expires_at 
+
+•  budget_allocated 
+
+•  status (Active / Paused / Closed) 
+
+D. Job_Ad_Analytics 
+
+• 
+
+id (PK) 
+
+•  publication_id (FK) 
+
+•  date 
+
+• 
+
+views 
+
+•  clicks 
+
+•  applications 
+
+•  conversion_rate 
+
+•  cost_per_application 
+
+•  source_quality_score 
+
+E. Candidates 
+
+• 
+
+id (PK) 
+
+•  name 
+
+•  email 
+
+ 
+ 
+ 
+•  phone 
+
+•  source (LinkedIn / Indeed / Referral / Direct / Internal) 
+
+•  source_detail (JSON) 
+
+•  cv_file_path 
+
+•  parsed_data (JSON) 
+
+•  competencies_extracted (JSON) 
+
+•  pipeline_stage (Applied / Screened / Interviewed / Offered / Hired / Rejected) 
+
+•  created_at 
+
+•  updated_at 
+
+F. Candidate_Vacancy (Junction Table) 
+
+• 
+
+id (PK) 
+
+•  candidate_id (FK) 
+
+• 
+
+vacancy_id (FK) 
+
+•  application_source (FK to Job_Ad_Publications) 
+
+•  cv_score 
+
+• 
+
+• 
+
+• 
+
+interview_score 
+
+traditional_interview_score 
+
+integrity_score (nullable) 
+
+•  combined_score 
+
+• 
+
+jd_match_percentage 
+
+•  ai_reasoning (JSON) 
+
+• 
+
+• 
+
+jd_competency_gaps (JSON) 
+
+rank_position 
+
+•  status (New / Shortlisted / Interviewed / Rejected / Hired) 
+
+•  applied_at 
+
+• 
+
+last_updated 
+
+G. Candidate_Communication_Log 
+
+• 
+
+id (PK) 
+
+ 
+ 
+•  candidate_id (FK) 
+
+• 
+
+vacancy_id (FK) 
+
+•  communication_type (Email / SMS / Call / In-App) 
+
+•  direction (Inbound / Outbound) 
+
+•  subject 
+
+•  content (TEXT) 
+
+•  status (Sent / Delivered / Read / Failed) 
+
+•  sent_by (FK to Users) 
+
+•  sent_at 
+
+H. Interviews 
+
+• 
+
+id (PK) 
+
+•  candidate_id (FK) 
+
+• 
+
+• 
+
+• 
+
+vacancy_id (FK) 
+
+type (AI_Avatar / Traditional) 
+
+interview_stage (Screening / Technical / HR / Manager / Panel) 
+
+•  status (Scheduled / In_Progress / Paused / Completed / Cancelled / No_Show) 
+
+• 
+
+integrity_monitoring_enabled (boolean) 
+
+•  consent_given (boolean) 
+
+•  consent_timestamp 
+
+•  scheduled_at 
+
+•  started_at 
+
+•  completed_at 
+
+•  meeting_link 
+
+• 
+
+• 
+
+• 
+
+location 
+
+video_file_path 
+
+transcript_file_path 
+
+•  analysis_data (JSON) 
+
+• 
+
+integrity_analysis_data (JSON) 
+
+•  created_at 
+
+ 
+•  updated_at 
+
+I. Interview_Interviewers 
+
+• 
+
+• 
+
+• 
+
+• 
+
+id (PK) 
+
+interview_id (FK) 
+
+interviewer_id (FK to Users) 
+
+role (Primary / Panel / Observer) 
+
+•  calendar_event_id 
+
+•  attendance_status (Confirmed / Attended / No_Show) 
+
+• 
+
+feedback_submitted (boolean) 
+
+•  assigned_at 
+
+J. Interview_Questions 
+
+• 
+
+• 
+
+• 
+
+id (PK) 
+
+interview_id (FK) 
+
+vacancy_id (FK) 
+
+•  question_text 
+
+•  competency_mapped 
+
+• 
+
+jd_competency_id 
+
+•  difficulty_level (Junior / Mid / Senior) 
+
+•  expected_response_time_seconds 
+
+•  question_type (Technical / Behavioral / Situational) 
+
+•  order_sequence 
+
+•  generated_at 
+
+K. Interview_Responses 
+
+• 
+
+• 
+
+id (PK) 
+
+interview_id (FK) 
+
+•  question_id (FK) 
+
+• 
+
+response_text (transcript) 
+
+ 
+ 
+ 
+• 
+
+• 
+
+video_timestamp_start 
+
+video_timestamp_end 
+
+•  score 
+
+• 
+
+jd_competency_score 
+
+•  ai_feedback (JSON) 
+
+•  created_at 
+
+L. Interview_Feedback 
+
+• 
+
+• 
+
+• 
+
+id (PK) 
+
+interview_id (FK) 
+
+interviewer_id (FK) 
+
+•  overall_rating (1-5) 
+
+• 
+
+recommendation (Strong_Hire / Hire / Maybe / No_Hire / Strong_No) 
+
+•  competency_ratings (JSON) 
+
+•  strengths (TEXT) 
+
+•  concerns (TEXT) 
+
+• 
+
+red_flags (TEXT) 
+
+•  cultural_fit_rating 
+
+•  communication_rating 
+
+• 
+
+technical_rating 
+
+•  open_feedback (TEXT) 
+
+•  submitted_at 
+
+M. Interview_Feedback_Calibration 
+
+• 
+
+• 
+
+id (PK) 
+
+interview_id (FK) 
+
+•  calibration_session_date 
+
+•  original_scores (JSON) 
+
+•  calibrated_scores (JSON) 
+
+•  consensus_rating 
+
+ 
+ 
+•  discrepancies_noted (TEXT) 
+
+•  calibration_notes (TEXT) 
+
+•  calibrated_by (FK to Users) 
+
+•  calibrated_at 
+
+N. Interview_Integrity_Signals 
+
+• 
+
+• 
+
+id (PK) 
+
+interview_id (FK) 
+
+•  question_id (FK) 
+
+• 
+
+timestamp 
+
+•  eye_gaze_x 
+
+•  eye_gaze_y 
+
+•  on_screen (boolean) 
+
+• 
+
+look_away_duration_ms 
+
+•  attention_score 
+
+•  head_pose_angles (JSON) 
+
+•  anomaly_detected (boolean) 
+
+•  anomaly_type 
+
+•  question_difficulty_context 
+
+•  baseline_deviation_percentage 
+
+•  created_at 
+
+O. Interview_Integrity_Reports 
+
+• 
+
+• 
+
+id (PK) 
+
+interview_id (FK) 
+
+•  overall_integrity_score 
+
+• 
+
+risk_level (Low / Medium / High) 
+
+•  anomaly_count 
+
+• 
+
+total_look_away_time_seconds 
+
+•  attention_percentage 
+
+ 
+ 
+•  behavioral_patterns (JSON) 
+
+•  context_adjustments (JSON) 
+
+•  ai_reasoning (JSON) 
+
+•  generated_at 
+
+P. Candidate_Consent_Records 
+
+• 
+
+id (PK) 
+
+•  candidate_id (FK) 
+
+• 
+
+interview_id (FK) 
+
+•  consent_type (Integrity_Monitoring / Data_Processing / Communication) 
+
+•  consent_given (boolean) 
+
+•  consent_text_shown (TEXT) 
+
+• 
+
+ip_address 
+
+•  user_agent 
+
+• 
+
+timestamp 
+
+•  withdrawn_at 
+
+Q. Hiring_Decisions 
+
+• 
+
+• 
+
+id (PK) 
+
+vacancy_id (FK) 
+
+•  candidate_id (FK) 
+
+• 
+
+recommendation_type (Hire / Reject / Hold) 
+
+•  cv_score 
+
+• 
+
+• 
+
+• 
+
+interview_score 
+
+traditional_interview_score 
+
+integrity_score 
+
+•  combined_score 
+
+• 
+
+jd_match_percentage 
+
+•  business_rules_passed (boolean) 
+
+• 
+
+failed_rules (JSON) 
+
+ 
+ 
+•  ai_reasoning (JSON) 
+
+•  hr_decision (Approved / Overridden) 
+
+•  override_reason 
+
+•  cost_per_hire 
+
+• 
+
+time_to_hire_days 
+
+•  decided_by (FK to Users) 
+
+•  decided_at 
+
+R. Internal_Mobility 
+
+• 
+
+id (PK) 
+
+•  employee_id (FK) 
+
+• 
+
+• 
+
+vacancy_id (FK) 
+
+target_jd_id (FK) 
+
+•  current_jd_id (FK) 
+
+•  application_type (Self_Nomination / Manager_Recommendation) 
+
+• 
+
+• 
+
+role_fit_score 
+
+jd_competency_match (JSON) 
+
+•  skill_gaps (JSON) 
+
+•  gap_closure_timeline_months 
+
+•  eligibility_status (Eligible / Not_Eligible / Exception_Granted) 
+
+• 
+
+failed_rules (JSON) 
+
+•  manager_endorsement (boolean) 
+
+•  endorsed_by (FK to Users) 
+
+•  endorsed_at 
+
+• 
+
+recommendation 
+
+•  status (Applied / Under_Review / Approved / Rejected) 
+
+•  created_at 
+
+•  updated_at 
+
+S. Succession_Plans 
+
+ 
+ 
+• 
+
+id (PK) 
+
+•  critical_role_id 
+
+• 
+
+target_jd_id (FK) 
+
+•  successor_employee_id (FK) 
+
+• 
+
+• 
+
+readiness_level (Ready / 6-12mo / 12+mo) 
+
+jd_competency_gap_percentage 
+
+•  competency_data (JSON) 
+
+•  development_plan (JSON) 
+
+•  business_rules_validated (boolean) 
+
+• 
+
+validation_notes 
+
+•  created_at 
+
+•  updated_at 
+
+T. Promotions 
+
+• 
+
+id (PK) 
+
+•  employee_id (FK) 
+
+•  promotion_cycle_id (FK) 
+
+•  current_jd_id (FK) 
+
+• 
+
+target_jd_id (FK) 
+
+•  current_role 
+
+•  proposed_role 
+
+•  promotion_score 
+
+• 
+
+jd_competency_delta (JSON) 
+
+•  eligibility_status (Eligible / Not_Eligible / Exception_Granted) 
+
+• 
+
+• 
+
+failed_rules (JSON) 
+
+justification (JSON) 
+
+•  status (Pending / Approved / Rejected) 
+
+•  decided_by (FK to Users) 
+
+•  decided_at 
+
+ 
+ 
+U. Promotion_Cycles 
+
+• 
+
+id (PK) 
+
+•  cycle_name 
+
+•  start_date 
+
+•  end_date 
+
+•  status (Open / Closed) 
+
+• 
+
+• 
+
+total_eligible_employees 
+
+total_promoted 
+
+•  created_by (FK to Users) 
+
+•  created_at 
+
+V. JD_Competency_Mappings 
+
+• 
+
+• 
+
+id (PK) 
+
+jd_id (FK to JD Engine) 
+
+•  competency_id 
+
+•  competency_name 
+
+•  proficiency_level (Junior / Mid / Senior / Expert) 
+
+• 
+
+is_critical (boolean) 
+
+•  weight_percentage 
+
+•  created_at 
+
+W. Integrity_Baselines 
+
+• 
+
+• 
+
+id (PK) 
+
+role_level 
+
+•  question_difficulty 
+
+•  avg_attention_score 
+
+•  avg_look_away_duration_ms 
+
+•  anomaly_threshold_percentage 
+
+•  sample_size 
+
+• 
+
+last_updated 
+
+ 
+ 
+2. Supporting Tables 
+
+X. Users 
+
+• 
+
+id (PK) 
+
+•  username 
+
+•  email 
+
+•  password_hash 
+
+• 
+
+role (HR / Recruiter / Candidate / Interviewer / Manager) 
+
+•  department 
+
+• 
+
+is_active 
+
+•  calendar_connected (boolean) 
+
+•  calendar_provider 
+
+•  availability_preferences (JSON) 
+
+•  created_at 
+
+Y. Interviewer_Profiles 
+
+• 
+
+id (PK) 
+
+•  user_id (FK) 
+
+• 
+
+interview_types (JSON) 
+
+•  competency_expertise (JSON) 
+
+•  max_interviews_per_week 
+
+•  avg_rating_given 
+
+• 
+
+• 
+
+• 
+
+total_interviews_conducted 
+
+feedback_quality_score 
+
+last_calibration_date 
+
+Z. Interviewer_Availability 
+
+• 
+
+• 
+
+id (PK) 
+
+interviewer_id (FK) 
+
+ 
+ 
+ 
+ 
+•  day_of_week 
+
+•  start_time 
+
+•  end_time 
+
+• 
+
+is_available 
+
+•  buffer_minutes_between 
+
+AA. Calendar_Events 
+
+• 
+
+• 
+
+id (PK) 
+
+interview_id (FK) 
+
+•  external_calendar_id 
+
+•  calendar_provider 
+
+•  event_link 
+
+•  created_at 
+
+• 
+
+last_synced_at 
+
+AB. Audit_Logs 
+
+• 
+
+id (PK) 
+
+•  user_id (FK) 
+
+•  action 
+
+•  entity_type 
+
+•  entity_id 
+
+• 
+
+jd_version_referenced 
+
+•  changes (JSON) 
+
+• 
+
+ip_address 
+
+•  user_agent 
+
+• 
+
+timestamp 
+
+AC. Notifications 
+
+• 
+
+• 
+
+id (PK) 
+
+recipient_id (FK) 
+
+ 
+ 
+ 
+• 
+
+type (Email / SMS / In_App) 
+
+•  category (Interview / Application / Decision / Reminder) 
+
+•  subject 
+
+•  content 
+
+•  status (Sent / Failed / Pending / Delivered / Read) 
+
+•  delivery_timestamp 
+
+• 
+
+read_timestamp 
+
+•  sent_at 
+
+AD. Integrity_Data_Access_Log 
+
+• 
+
+id (PK) 
+
+•  user_id (FK) 
+
+• 
+
+interview_id (FK) 
+
+•  access_type (View / Export / Delete) 
+
+•  purpose 
+
+• 
+
+timestamp 
+
+AE. System_Configuration 
+
+• 
+
+id (PK) 
+
+•  config_key 
+
+•  config_value (JSON) 
+
+•  config_category 
+
+•  description 
+
+• 
+
+is_active 
+
+•  updated_by (FK to Users) 
+
+•  updated_at 
+
+  USER STORY COVERAGE 
+
+ 
+ 
+ 
+ 
+     EPIC 1 – Vacancy Management 
+     EPIC 2 – Candidate Ingestion & Scoring 
+     EPIC 3 – Candidate Transparency 
+     EPIC 4 – Interview Management 
+     EPIC 5 – Interview Integrity 
+     EPIC 6 – Hiring Decisions 
+     EPIC 7 – Internal Mobility 
+     EPIC 8 – Succession Planning 
+     EPIC 9 – Promotion Management 
+
+

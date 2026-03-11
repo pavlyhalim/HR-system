@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block head %}
+    <title>{{ title|default:"HR System API — ReDoc" }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body { margin: 0; padding: 0; }
+      .hr-redoc-header {
+        background: linear-gradient(135deg, #161922 0%, #1a1040 100%);
+        border-bottom: 1px solid #2a2e3f;
+        padding: 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      .hr-redoc-header-inner {
+        max-width: 1460px;
+        margin: 0 auto;
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .hr-redoc-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .hr-redoc-logo-icon {
+        width: 36px;
+        height: 36px;
+        background: #6c63ff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
+        box-shadow: 0 0 20px rgba(108, 99, 255, 0.15);
+      }
+      .hr-redoc-logo-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: #e8e9ed;
+        letter-spacing: -0.3px;
+      }
+      .hr-redoc-logo-text span { color: #6c63ff; }
+      .hr-redoc-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .hr-redoc-nav a {
+        color: #9ca3b4;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+      }
+      .hr-redoc-nav a:hover {
+        color: #e8e9ed;
+        background: rgba(108, 99, 255, 0.15);
+        border-color: #2a2e3f;
+      }
+      .hr-redoc-nav a.active {
+        color: #6c63ff;
+        background: rgba(108, 99, 255, 0.15);
+        border-color: #6c63ff;
+      }
+      .hr-redoc-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 20px;
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        letter-spacing: 0.5px;
+      }
+    </style>
+    {% endblock head %}
+  </head>
+  <body>
+    {% block body %}
+    <div class="hr-redoc-header">
+      <div class="hr-redoc-header-inner">
+        <div class="hr-redoc-logo">
+          <div class="hr-redoc-logo-icon">HR</div>
+          <div class="hr-redoc-logo-text">HR System <span>API</span></div>
+          <div class="hr-redoc-badge">v1.0.0</div>
+        </div>
+        <div class="hr-redoc-nav">
+          <a href="/api/docs/">Swagger</a>
+          <a href="/api/redoc/" class="active">ReDoc</a>
+          <a href="/admin/">Admin</a>
+        </div>
+      </div>
+    </div>
+    {% if settings %}
+    <div id="redoc-container"></div>
+    <script src="{{ redoc_standalone }}"></script>
+    <script>
+      const redocSettings = {{ settings|safe }};
+      Redoc.init("{{ schema_url }}", redocSettings, document.getElementById('redoc-container'))
+    </script>
+    {% else %}
+    <redoc spec-url="{{ schema_url }}"></redoc>
+    <script src="{{ redoc_standalone }}"></script>
+    {% endif %}
+    {% endblock body %}
+  </body>
+</html>

@@ -1,0 +1,727 @@
+AI RECRUITER ENGINE - SYSTEM ARCHI-
+TECTURE MAP
+
+Just to clarify: this document represents a detailed high-level system map. Final
+scope, depth, and cost depend on prioritization and phase definition once we
+align on requirements.
+
+￿ OVERVIEW
+
+This document maps the complete frontend and backend architecture for the
+AI Recruiter Engine, excluding AI/ML components which will be handled ex-
+ternally.
+
+￿ FRONTEND ARCHITECTURE
+
+1. HR/Recruiter Portal
+
+A. Vacancy Management Module
+
+• Create Vacancy Page
+
+– Form: JD selection dropdown, role level, department
+– Validation: JD approval status check
+– Status management: Draft/Open/Closed toggle
+
+• Vacancy Dashboard
+
+– List view: All vacancies with filters
+– Search & filter: By status, department, date
+– Quick actions: Edit, close, view candidates
+
+B. Candidate Management Module
+
+• Candidate List View
+
+– Ranked list display with scores
+– Filters: Experience level, score threshold, internal/external
+– Bulk actions: Export, send interview invitations
+– Sort options: By score, date, name
+
+• Candidate Profile View
+
+– CV data display (structured)
+– Score breakdown visualization (charts/graphs)
+– Competency mapping table
+– Interview history timeline
+– Video interview recordings player
+– Interview analysis reports viewer
+
+C. Interview Management Module
+
+• Interview Questions Generator
+
+1
+
+– JD-based question generation trigger
+– Questions preview/edit interface
+– Diﬀiculty level selector
+– Export options (PDF/DOC download)
+
+• AI Avatar Interview Setup
+– Interview invitation form
+– Email template customization
+– Schedule/deadline settings
+– Accessibility options configuration
+
+• Interview Analysis Dashboard
+
+– Video playback with timestamps
+– Transcript viewer (synchronized with video)
+– Score visualization per competency
+– Communication metrics display
+– Sentiment indicators
+– Red flags highlighting
+– Comparative candidate view
+
+D. Decision Support Module
+
+• Hiring Recommendation View
+
+– Top candidates comparison table
+– AI reasoning display
+– Strengths/risks/gaps summary
+– Approve/override buttons
+– Override reason modal/form
+– Decision history log
+
+E. Internal Mobility Module
+
+• Mobility Dashboard
+
+– Open internal roles list
+– Employee matching view
+– Role-fit scores display
+– Skill gap analysis viewer
+– Recommendation reports
+
+F. Succession Planning Module
+
+• Succession Matrix View
+– Critical roles grid
+– Successor cards per role
+– Readiness level indicators (Ready/6-12mo/12+mo)
+– Performance data visualization
+– Edit succession plan interface
+
+2
+
+G. Promotion Module
+
+• Promotion Recommendations Dashboard
+
+– Eligible employees list
+– Promotion scores display
+– Performance history viewer
+– Justification reports
+– Approval workflow
+
+2. Candidate Portal
+
+A. Interview Interface
+
+• Pre-Interview Page
+
+– Identity validation form
+– Interview instructions
+– Technical setup check (camera/mic)
+– Privacy policy consent
+
+• AI Avatar Interview Page
+
+– Avatar video display (full screen option)
+– Question display area
+– Recording indicator
+– Pause/Resume button (once)
+– Progress bar
+– Timer display
+– Captions toggle
+– Response recording interface
+
+• Post-Interview Page
+
+– Thank you message
+– Next steps information
+– Contact support option
+
+￿ BACKEND ARCHITECTURE
+
+1. Core Services
+
+A. API Gateway
+
+• Request routing
+• Authentication/Authorization
+• Rate limiting
+• Request logging
+• CORS handling
+
+B. Authentication Service
+
+• User login/logout
+
+3
+
+• JWT token generation
+• Role-based access control (HR, Recruiter, Candidate)
+• Session management
+• Password reset
+
+2. Business Logic Services
+
+A. Vacancy Service
+
+• Endpoints:
+
+– POST /api/vacancies - Create vacancy
+– GET /api/vacancies - List vacancies
+– GET /api/vacancies/{id} - Get vacancy details
+– PUT /api/vacancies/{id} - Update vacancy
+– PATCH /api/vacancies/{id}/status - Change status
+– DELETE /api/vacancies/{id} - Delete vacancy
+
+• Business Logic:
+
+– Validate JD approval status
+– Enforce mandatory fields
+– Status transition rules
+– Link to approved JD
+
+B. Candidate Service
+
+• Endpoints:
+
+– POST /api/candidates - Create candidate
+– POST /api/candidates/bulk-upload - Bulk CV upload
+– GET /api/candidates - List candidates
+– GET /api/candidates/{id} - Get candidate profile
+– GET /api/vacancies/{id}/candidates
+
+- Get
+
+candidates
+
+for
+
+vacancy
+
+– GET /api/candidates/{id}/ranked - Get ranked candidate list
+
+• Business Logic:
+
+– Parse CV data (call AI service)
+– Store structured candidate data
+– Retrieve scoring from AI service
+– Ranking logic with tie-breakers
+– Filter and search candidates
+
+C. Interview Service
+
+• Endpoints:
+
+– POST /api/interviews/questions/generate - Generate questions
+– POST /api/interviews/avatar/invite - Send avatar interview in-
+
+vitation
+
+– GET /api/interviews/{id} - Get interview details
+– POST /api/interviews/{id}/start - Start interview session
+
+4
+
+– POST /api/interviews/{id}/responses - Submit response
+– PATCH /api/interviews/{id}/pause - Pause interview
+– PATCH /api/interviews/{id}/resume - Resume interview
+– POST /api/interviews/{id}/complete - Complete interview
+– GET /api/interviews/{id}/analysis - Get interview analysis
+– GET /api/interviews/{id}/transcript - Get transcript
+– GET /api/interviews/{id}/video - Stream video recording
+
+• Business Logic:
+
+– Generate role-specific questions (call AI service)
+– Send email invitations
+– Validate candidate identity
+– Manage interview state (started/paused/completed)
+– Store video/audio recordings
+– Request AI analysis
+– Generate analysis reports
+– Secure video access control
+
+D. Decision Service
+
+• Endpoints:
+
+– GET /api/decisions/recommendations/{vacancyId} - Get hiring
+
+recommendations
+
+– POST /api/decisions/{id}/approve - Approve recommendation
+– POST /api/decisions/{id}/override - Override with reason
+– GET /api/decisions/{id}/history - Get decision history
+
+• Business Logic:
+
+– Combine CV + Interview scores
+– Generate recommendation summary
+– Capture override reasons
+– Log decision history
+
+E. Internal Mobility Service
+
+• Endpoints:
+
+– GET /api/mobility/roles - List internal roles
+– POST /api/mobility/scan - Scan employee profiles
+– GET /api/mobility/{roleId}/matches - Get matched employees
+– GET /api/mobility/reports/{employeeId} - Get mobility report
+
+• Business Logic:
+
+– Match employee profiles to roles
+– Calculate role-fit scores (call AI service)
+– Identify skill gaps
+– Generate recommendation reports
+
+F. Succession Planning Service
+
+• Endpoints:
+
+5
+
+– POST /api/succession/roles - Define critical role
+– GET /api/succession/roles - List critical roles
+– GET /api/succession/{roleId}/successors - Get successors
+– POST /api/succession/{roleId}/identify - Identify successors
+– GET /api/succession/matrix - Get succession matrix
+
+• Business Logic:
+
+– Identify successors (call AI service)
+– Assign readiness levels
+– Generate succession matrix
+– Link to performance data
+
+G. Promotion Service
+
+• Endpoints:
+
+– POST /api/promotions/initiate - Start promotion cycle
+– GET /api/promotions/eligible - Get eligible employees
+– POST /api/promotions/{employeeId}/evaluate
+
+-
+
+Evaluate
+
+employee
+
+– GET /api/promotions/{employeeId}/recommendation
+
+-
+
+Get
+
+recommendation
+
+– POST /api/promotions/{id}/approve - Approve promotion
+
+• Business Logic:
+
+– Validate eligibility rules
+– Retrieve performance history
+– Calculate promotion scores (call AI service)
+– Generate justification reports
+
+3. Integration Services
+
+A. Job Description Integration Service
+
+• Endpoints:
+
+– GET /api/jd/{id} - Fetch JD details
+– GET /api/jd/{id}/competencies - Get competencies
+– GET /api/jd/approved - List approved JDs
+
+• Business Logic:
+
+– Integrate with JD Engine
+– Validate JD approval status
+– Extract competencies
+
+B. ATS Integration Service (if applicable)
+
+• Endpoints:
+
+– POST /api/ats/sync - Sync candidates from ATS
+– GET /api/ats/candidates - Fetch ATS candidates
+
+• Business Logic:
+
+– Connect to external ATS
+
+6
+
+– Map ATS data to internal format
+– Sync candidate updates
+
+C. Email Service
+
+• Endpoints:
+
+– POST /api/notifications/email - Send email
+– POST /api/notifications/template - Send templated email
+
+• Business Logic:
+
+– Send interview invitations
+– Send reminders
+– Send result notifications
+– Template management
+
+D. Document Service
+
+• Endpoints:
+
+– POST /api/documents/upload - Upload CV/document
+– GET /api/documents/{id} - Download document
+– POST /api/documents/export - Export reports (PDF/DOC)
+
+• Business Logic:
+
+– File upload handling
+– File type validation
+– Secure storage
+– Document generation (PDF/DOC)
+
+E. Video/Media Service
+
+• Endpoints:
+
+– POST /api/media/upload - Upload video/audio
+– GET /api/media/{id}/stream - Stream video
+– POST /api/media/{id}/transcribe - Request transcription
+
+• Business Logic:
+
+– Video/audio upload
+– Secure cloud storage
+– Streaming with authentication
+– Transcription request handling
+– Encryption for sensitive data
+
+4. Data Services
+
+A. Employee Data Service
+
+• Endpoints:
+
+– GET /api/employees - List employees
+– GET /api/employees/{id} - Get employee profile
+– GET /api/employees/{id}/performance - Get performance data
+
+7
+
+– GET /api/employees/{id}/competencies - Get competencies
+
+• Business Logic:
+
+– Retrieve employee profiles
+– Fetch performance data
+– Access competency framework
+
+B. Competency Framework Service
+
+• Endpoints:
+
+– GET /api/competencies - List all competencies
+– GET /api/competencies/role/{roleId} - Get role competencies
+– GET /api/competencies/{id} - Get competency details
+
+• Business Logic:
+
+– Manage competency library
+– Map competencies to roles
+
+5. AI Service Interface Layer
+
+A. AI Proxy Service
+
+• Purpose: Interface between backend and external AI services
+• Endpoints:
+
+– POST /api/ai/cv-parse - Parse CV
+– POST /api/ai/score-candidate - Score candidate
+– POST /api/ai/generate-questions - Generate interview questions
+– POST /api/ai/analyze-interview - Analyze interview responses
+– POST /api/ai/match-mobility - Match internal mobility
+– POST /api/ai/identify-successors - Identify successors
+– POST /api/ai/calculate-promotion - Calculate promotion score
+
+• Business Logic:
+
+– API calls to external AI services
+– Request/response mapping
+– Error handling for AI services
+– Caching AI results
+– Rate limiting for AI calls
+
+￿ DATABASE ARCHITECTURE
+
+1. Core Tables
+
+A. Vacancies
+
+- id (PK)
+- jd_id (FK to JD Engine)
+- title
+- role_level
+
+8
+
+- department
+- status (Draft/Open/Closed)
+- created_by
+- created_at
+- updated_at
+
+B. Candidates
+
+- id (PK)
+- name
+- email
+- phone
+- source (External/Internal)
+- cv_file_path
+- parsed_data (JSON)
+- created_at
+- updated_at
+
+C. Candidate_Vacancy (Junction Table)
+
+- id (PK)
+- candidate_id (FK)
+- vacancy_id (FK)
+- cv_score
+- ai_reasoning (JSON)
+- rank_position
+- status (New/Shortlisted/Interviewed/Rejected/Hired)
+- applied_at
+
+D. Interviews
+
+- id (PK)
+- candidate_id (FK)
+- vacancy_id (FK)
+- type (Traditional/AI_Avatar)
+- status (Scheduled/In_Progress/Paused/Completed)
+- scheduled_at
+- started_at
+- completed_at
+- video_file_path
+- transcript_file_path
+- analysis_data (JSON)
+
+E. Interview_Questions
+
+- id (PK)
+- interview_id (FK)
+
+9
+
+- vacancy_id (FK)
+- question_text
+- competency_mapped
+- difficulty_level
+- order_sequence
+- generated_at
+
+F. Interview_Responses
+
+- id (PK)
+- interview_id (FK)
+- question_id (FK)
+- response_text (transcript)
+- video_timestamp_start
+- video_timestamp_end
+- score
+- ai_feedback (JSON)
+- created_at
+
+G. Hiring_Decisions
+
+- id (PK)
+- vacancy_id (FK)
+- candidate_id (FK)
+- recommendation_type (Hire/Reject/Hold)
+- ai_reasoning (JSON)
+- hr_decision (Approved/Overridden)
+- override_reason
+- decided_by
+- decided_at
+
+H. Internal_Mobility
+
+- id (PK)
+- employee_id (FK)
+- vacancy_id (FK)
+- role_fit_score
+- skill_gaps (JSON)
+- recommendation
+- created_at
+
+I. Succession_Plans
+
+- id (PK)
+- critical_role_id
+- successor_employee_id (FK)
+- readiness_level (Ready/6-12mo/12+mo)
+
+10
+
+- competency_data (JSON)
+- created_at
+- updated_at
+
+J. Promotions
+
+- id (PK)
+- employee_id (FK)
+- current_role
+- proposed_role
+- promotion_score
+- eligibility_status
+- justification (JSON)
+- status (Pending/Approved/Rejected)
+- decided_at
+
+2. Supporting Tables
+
+K. Users
+
+- id (PK)
+- username
+- email
+- password_hash
+- role (HR/Recruiter/Candidate)
+- is_active
+- created_at
+
+L. Audit_Logs
+
+- id (PK)
+- user_id (FK)
+- action
+- entity_type
+- entity_id
+- changes (JSON)
+- timestamp
+
+M. Notifications
+
+- id (PK)
+- recipient_id (FK)
+- type (Email/SMS/In_App)
+- subject
+- content
+- status (Sent/Failed/Pending)
+- sent_at
+
+11
+
+￿ EXTERNAL INTEGRATIONS
+
+1. JD Engine
+
+• Purpose: Fetch approved job descriptions
+• Integration Type: REST API
+• Authentication: API Key / OAuth
+
+2. AI/ML Services (External - Not Implemented Here)
+
+• CV Parsing
+• Candidate Scoring
+• Interview Question Generation
+• Interview Analysis
+• Mobility Matching
+• Succession Identification
+• Promotion Calculation
+
+3. Cloud Storage (Video/Documents)
+
+• Provider: AWS S3 / Azure Blob / Google Cloud Storage
+• Purpose: Store videos, CVs, reports
+• Security: Encryption at rest and in transit
+
+4. Email Service
+
+• Provider: SendGrid / AWS SES / Mailgun
+• Purpose: Interview invitations, notifications
+
+5. Calendar Integration (Optional)
+
+• Provider: Google Calendar / Outlook
+• Purpose: Schedule interviews
+
+￿ SECURITY REQUIREMENTS
+
+Backend Security
+
+• JWT-based authentication
+• Role-based access control (RBAC)
+• API rate limiting
+• Input validation and sanitization
+• SQL injection prevention
+• XSS protection
+
+12
+
+• HTTPS enforcement
+• Data encryption at rest and in transit
+• Secure video/document storage
+• GDPR compliance for personal data
+• Audit logging for all critical actions
+
+Frontend Security
+
+• Secure token storage
+• CSRF protection
+• Content Security Policy (CSP)
+• Secure video streaming
+• No sensitive data in client-side storage
+• Input validation before API calls
+
+￿ NON-FUNCTIONAL REQUIREMENTS
+
+Performance
+
+• API response time: < 500ms (95th percentile)
+• Video streaming: Adaptive bitrate
+• Bulk CV upload: Support up to 100 CVs
+• Concurrent interviews: Support 50+ simultaneous sessions
+
+Scalability
+
+• Horizontal scaling for API services
+• Database read replicas
+• CDN for video streaming
+• Queue-based processing for heavy tasks (CV parsing, AI scoring)
+
+Availability
+
+• 99.9% uptime SLA
+• Database backups every 24 hours
+• Disaster recovery plan
+
+￿ TECHNOLOGY STACK RECOMMENDATIONS
+
+Frontend
+
+• Framework: React.js / Vue.js / Angular
+• State Management: Redux / Vuex / NgRx
+• UI Library: Material-UI / Ant Design / Tailwind CSS
+• Video Player: Video.js / Plyr
+
+13
+
+
